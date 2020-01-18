@@ -2,7 +2,7 @@
 Name:		oxygen-gtk3
 Epoch:		1
 Version:	1.1.4
-Release:	1%{?dist}
+Release:	3%{?dist}
 Summary:	Oxygen GTK+3 theme
 
 Group:		User Interface/Desktops
@@ -61,6 +61,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1:1.1.4-3
+- Mass rebuild 2014-01-24
+
+* Fri Dec 27 2013 Daniel Mach <dmach@redhat.com> - 1:1.1.4-2
+- Mass rebuild 2013-12-27
+
 * Fri May 31 2013 Alexey Kurov <nucleo@fedoraproject.org> - 1:1.1.4-1
 - oxygen-gtk3-1.1.4
 
