@@ -1,14 +1,17 @@
 
-Name:		oxygen-gtk3
-Epoch:		1
-Version:	1.1.4
-Release:	3%{?dist}
-Summary:	Oxygen GTK+3 theme
+Name:       oxygen-gtk3
+Epoch:      1
+Version:    1.1.4
+Release:    5%{?dist}
+Summary:    Oxygen GTK+3 theme
 
-Group:		User Interface/Desktops
-License:	LGPLv2+
-URL:		https://projects.kde.org/projects/playground/artwork/oxygen-gtk
-Source0:	ftp://ftp.kde.org/pub/kde/stable/oxygen-gtk3/%{version}/src/%{name}-%{version}.tar.bz2
+Group:      User Interface/Desktops
+License:    LGPLv2+
+URL:        https://projects.kde.org/projects/playground/artwork/oxygen-gtk
+Source0:    ftp://ftp.kde.org/pub/kde/stable/oxygen-gtk3/%{version}/src/%{name}-%{version}.tar.bz2
+
+Patch0:     oxygen-gtk3-make-buttons-working-as-expected.patch
+Patch1:     oxygen-gtk3-only-register-menubar-when-widget-is-valid.patch
 
 BuildRequires:	cmake
 BuildRequires:	gtk3-devel
@@ -23,13 +26,15 @@ Desktop Environments.
 
 Unlike other attempts made to port the KDE oxygen theme to gtk, this
 attempt does not depend on Qt (via some Qt to Gtk conversion engine),
-nor does render the widget appearance via hard-coded pixmaps, which 
+nor does render the widget appearance via hard-coded pixmaps, which
 otherwise breaks every time some setting is changed in KDE.
 
 
 %prep
 %setup -q
 
+%patch0 -p1 -b .make-buttons-working-as-expected
+%patch1 -p1 -b .only-register-menubar-when-widget-is-valid
 
 %build
 
@@ -61,6 +66,14 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Sep 19 2016 Jan Grulich <jgrulich@redhat.com> - 1:1.1.4-5
+- Avoid firefox crash at startup
+  Resolves: bz#1376205
+
+* Tue Mar 22 2016 Jan Grulich <jgrulich@redhat.com> - 1:1.1.4-4
+- Make buttons work as expected with GTK applications
+  Resolves: bz#1295043
+
 * Fri Jan 24 2014 Daniel Mach <dmach@redhat.com> - 1:1.1.4-3
 - Mass rebuild 2014-01-24
 

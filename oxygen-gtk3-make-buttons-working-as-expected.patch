@@ -1,0 +1,102 @@
+diff --git a/src/oxygenstyleoptions.h b/src/oxygenstyleoptions.h
+index 006309d..13acfab 100644
+--- a/src/oxygenstyleoptions.h
++++ b/src/oxygenstyleoptions.h
+@@ -78,6 +78,10 @@ namespace Oxygen
+             if( flags & GTK_STATE_FLAG_SELECTED ) (*this) |= (Selected|Active);
+             if( flags & GTK_STATE_FLAG_ACTIVE ) (*this) |= Sunken;
+ 
++            #if GTK_CHECK_VERSION( 3, 13, 7 )
++            if( flags & GTK_STATE_FLAG_CHECKED ) (*this) |= Sunken;
++            #endif
++
+             // TODO: check whether one should use this, or gtk_widget_has_focus
+             if( flags & GTK_STATE_FLAG_FOCUSED ) (*this) |= Focus;
+ 
+@@ -91,6 +95,10 @@ namespace Oxygen
+             if( flags & GTK_STATE_FLAG_PRELIGHT ) (*this) |= Hover;
+             if( flags & GTK_STATE_FLAG_SELECTED ) (*this) |= (Selected|Active);
+             if( flags & GTK_STATE_FLAG_ACTIVE ) (*this) |= Sunken;
++		
++	    #if GTK_CHECK_VERSION( 3, 13, 7 )
++            if( flags & GTK_STATE_FLAG_CHECKED ) (*this) |= Sunken;
++            #endif
+ 
+             // TODO: check whether one should use this, or gtk_widget_has_focus
+             if( widget && gtk_widget_has_focus(widget) ) (*this)|=Focus;
+diff --git a/src/oxygenthemingengine.cpp b/src/oxygenthemingengine.cpp
+index be377af..a308832 100644
+--- a/src/oxygenthemingengine.cpp
++++ b/src/oxygenthemingengine.cpp
+@@ -334,7 +334,7 @@ namespace Oxygen
+ 
+         } else if( gtk_widget_path_is_type( path, GTK_TYPE_NOTEBOOK ) ) {
+ 
+-            // no need to render anything for notebook gradient
++            // no need to render anything for notebook background
+ 
+         } else if( gtk_theming_engine_has_class( engine, GTK_STYLE_CLASS_CELL ) ) {
+ 
+@@ -1782,8 +1782,12 @@ namespace Oxygen
+ 
+             // shadow type defines checkmark presence and type
+             GtkShadowType shadow( GTK_SHADOW_OUT );
+-            if( state&GTK_STATE_FLAG_INCONSISTENT ) shadow = GTK_SHADOW_ETCHED_IN;
+-            else if( state&GTK_STATE_FLAG_ACTIVE ) shadow = GTK_SHADOW_IN;
++            if( state & GTK_STATE_FLAG_INCONSISTENT ) shadow = GTK_SHADOW_ETCHED_IN;
++            else if( state & GTK_STATE_FLAG_ACTIVE ) shadow = GTK_SHADOW_IN;
++		
++	   #if GTK_CHECK_VERSION( 3, 13, 7 )
++            else if( state & GTK_STATE_FLAG_CHECKED ) shadow = GTK_SHADOW_IN;
++            #endif
+ 
+             Style::instance().renderCheckBox( widget, context, x, y, w, h, shadow, options, data );
+ 
+@@ -1869,8 +1873,13 @@ namespace Oxygen
+ 
+             // shadow type defines checkmark presence and type
+             GtkShadowType shadow( GTK_SHADOW_OUT );
+-            if( state&GTK_STATE_FLAG_INCONSISTENT ) shadow = GTK_SHADOW_ETCHED_IN;
+-            else if( state&GTK_STATE_FLAG_ACTIVE ) shadow = GTK_SHADOW_IN;
++            if( state & GTK_STATE_FLAG_INCONSISTENT ) shadow = GTK_SHADOW_ETCHED_IN;
++            else if( state & GTK_STATE_FLAG_ACTIVE ) shadow = GTK_SHADOW_IN;
++
++            #if GTK_CHECK_VERSION( 3, 13, 7 )
++            else if( state & GTK_STATE_FLAG_CHECKED ) shadow = GTK_SHADOW_IN;
++            #endif
++
+             Style::instance().renderRadioButton( widget, context, x, y, w, h, shadow, options, data );
+ 
+         } else {
+diff --git a/src/oxygenwindowmanager.cpp b/src/oxygenwindowmanager.cpp
+index 0450597..5d5cd65 100644
+--- a/src/oxygenwindowmanager.cpp
++++ b/src/oxygenwindowmanager.cpp
+@@ -116,6 +116,7 @@ namespace Oxygen
+         if( GTK_IS_NOTEBOOK( parent ) && Gtk::gtk_notebook_is_tab_label( GTK_NOTEBOOK( parent ), widget ) )
+         { return false; }
+ 
++	#if GTK_CHECK_VERSION( 3, 13, 7 )
+         /*
+         check event mask (for now we only need to do that for GtkWindow)
+         The idea is that if the window has been set to receive button_press and button_release events
+@@ -123,10 +124,15 @@ namespace Oxygen
+         in which case we should not use them for grabbing
+         */
+         if(
++            ( GTK_IS_VIEWPORT( widget ) ) &&
++            ( gtk_widget_get_events ( widget ) & ( GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK ) ) )
++        #else
++        if(
+             ( GTK_IS_WINDOW( widget ) || GTK_IS_VIEWPORT( widget ) ) &&
+-            ( gtk_widget_get_events ( widget ) &
+-            ( GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK ) ) )
+-        {
++            ( gtk_widget_get_events ( widget ) & ( GDK_BUTTON_PRESS_MASK|GDK_BUTTON_RELEASE_MASK ) ) )
++        
++	#endif
++	{
+             registerBlackListWidget( widget );
+             return false;
+         }
+
