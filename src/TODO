@@ -1,0 +1,75 @@
+This is the oxygen-gtk TODO list, maintained and updated by the devs.
+You can add anything you can think of here. Possibly specifying the branch, a possible release target, and a priority.
+You can also add your name on which of the item you are either already working on, or interested in working on.
+
+Reminder: fixing existing bugs on bugs.kde.org should always have the highest priority :)
+
+Try find a way to avoid flicker on combobox resize (not sure whether this actually is possible or not).
+
+- add hooks at widget realization for registration to the relevant engines, rather than having it scattered in stylewrapper
+TRIED, but it actually does not unclutter the code much, and creates other issues. So post-poned.
+
+- better support for using oxygen-gtk in a non-kde environment.
+
+GTK3 branch:
+
+Arrows: DONE.
+scrollbars: DONE
+menus: DONE.
+Slider trough: DONE
+Splitter handles: DONE
+
+Toolbar grips: DONE (but untested)
+
+ProgressBars: DONE
+But still needs to implement text color change
+
+treeviews: DONE
+But there is a problem with background in header buttons. Fixed.
+There is also a problem in rendering buttons in cells (because of how header buttons are detected.) This is also true for Gtk2
+
+TreeView selection: DONE.
+Spin buttons: DONE
+
+Menu Expander: no selection. DONE.
+Icons: customize hover effect, and implement custom disable effect. DONE.
+
+Menus: DONE, but:
+- issues with scrollbar background
+- tearoff menus are totally broken. Part of it might be gtk3 issue. 
+- XShape not yet used for non-composited WM case (same for combobox popups and tooltips). DONE.
+
+Comboboxes dropdown lists: shadow shouldn't look like usual focus/hover - should instead have float frame on background gradient: DONE
+ComboBox resize: apparently this is not working (unlike for gtk2). The window is moved properly, but its width is not changed. FIXED
+No need for resize hook any more. Use asymetric margins and mask out the sides. TODO: check if it doesn't get broken by scrollable popups
+
+Combobox entry: completly broken.
+Seems like gtk3 bug. Also broken with Raleigh. 
+TODO: file bug report. DONE.
+Implemented workaround in the meanwhile.
+
+Notebooks: DONE, but vertical positionning of text in tabs is broken. 
+Might also be gtk3 bug, but needs investigation.
+
+try remapping icons using GtkStockIcon directly, rather than gtkrc, seems it is not available for gtk3.  DONE
+
+- backport to master and 1.0, the use of gtksettings in oxygenqtsettings, in place of addToHeaderSection. 
+Should be more robust. DONE
+- try backport icon remapping too.
+
+- Use as much of gtk_theming_engine_has_class, rather than gtk_widget_path_it_type.
+- in gtk.css: same thing. Try use Style_classes rather than widget types.
+Look at gtkcssprovider.c for examples
+
+- fix checkbox hover in trees. Need to tag the current column being hovered, and not only the full-row. DONE.
+
+- widget alignments:
+For the moment ComboBoxes are too high (by one pixel)
+
+Gtk3-Demo -> offscreen pixmap -> effects crashes. FIXED
+
+Inner shadows:
+Implement separate check if a particular GtkScrolledWindow has to be registered to ScrolledWindowEngine to allow for checking before registration (in innerShadowHook as well as in draw_shadow())
+Also use composited child hack to round combobox list (and remove old XShape hack for this)
+
+Apply XShape to GtkEntry and GtkComboboxEntry to make it look better on non-oxygen background (e.g. in GtkTextView)
